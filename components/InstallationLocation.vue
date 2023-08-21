@@ -28,7 +28,7 @@ const address = ref('');
 async function setLocation(e) {
   latlng.value = e.latlng
   try {
-    const post = await fetch(`http://nominatim.openstreetmap.org/reverse?lat=` + latlng.value.lat
+    const post = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=` + latlng.value.lat
       + `&lon=` + e.latlng.lng
       + `&format=json`
       + `&addressdetails=1`
