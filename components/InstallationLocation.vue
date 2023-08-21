@@ -1,7 +1,7 @@
 <template>
   <client-only>
     <VRow no-gutters align="center" justify="center" class="mt-4">
-      <VCol class="fill-height" md="8" lg="8">
+      <VCol class="fill-height" cols="12" md="8" lg="8">
         <div>
           <h3>1. Aponte o local onde pretende realizar a instalação</h3>
         </div>
