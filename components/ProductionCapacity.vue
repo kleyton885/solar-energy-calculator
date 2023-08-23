@@ -16,6 +16,7 @@
           </div>
         </v-card-text>
       </v-card>
+      <div class="mt-2">* Considerando um sistema de 3.3 kWp (6 módulos de 555W)</div>
     </VCol>
     <VCol cols="12" md="8" lg="8" v-else>
       <v-skeleton-loader v-if="latlng.lat != ''" width="200" height="75" type="image" />
@@ -34,7 +35,7 @@ async function getSolarInfo(e) {
     if (latlng.value.lat != '') {
       const post = await $fetch('https://api.globalsolaratlas.info/data/pvcalc?loc='+latlng.value.lat+','+latlng.value.lng, {
         method: 'POST',
-        body: '{"type":"rooftopSmall","systemSize":{"type":"capacity","value":1},"orientation":{"azimuth":0,"tilt":9}}'
+        body: '{"type":"rooftopSmall","systemSize":{"type":"capacity","value":3.3},"orientation":{"azimuth":0,"tilt":9}}'
       });
       capacity.value = post.annual.data.PVOUT_total
 
