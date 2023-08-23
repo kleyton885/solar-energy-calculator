@@ -1,29 +1,34 @@
 <template>
-  <client-only>
     <VRow no-gutters align="center" justify="center" class="mt-4">
       <VCol class="fill-height" cols="12" md="8" lg="8">
         <div>
           <h3>1. Aponte o local onde pretende realizar a instalação</h3>
         </div>
-        <div id="map-wrap" style="height: 60vh;">
+        <div id="map-wrap" style="height: 300px">
+          <client-only v-if="isContentLoaded">
           <l-map @click="setLocation" :zoom=13 :center="[-9.643112, -35.718860]">
             <l-tile-layer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></l-tile-layer>
-            <l-marker :lat-lng=latlng>
-              <l-popup>{{ address }}</l-popup>
-            </l-marker>
+            <l-marker :lat-lng=latlng></l-marker>
           </l-map>
+          </client-only>
+          <v-skeleton-loader type="image, image" v-else />
         </div>
-      </VCol>
-      <VCol class="fill-height" md="8" lg="8">
-        {{ address }}
+        <div>{{ address }}</div>
       </VCol>
     </VRow>
-  </client-only>
 </template>
 
 <script setup>
-const latlng = ref({lat: '', lng: ''});
+import { VSkeletonLoader } from 'vuetify/labs/VSkeletonLoader'
+
+const latlng = useLatlng();
+const capacity = useCapacity();
 const address = ref('');
+const isContentLoaded = ref(false);
+
+onMounted(() => {
+  isContentLoaded.value = true;
+});
 
 async function setLocation(e) {
   latlng.value = e.latlng
@@ -34,7 +39,21 @@ async function setLocation(e) {
       + `&addressdetails=1`
       + `&accept-language=pt-BR`
       + `&zoom=18`).then((r) => r.json())
-    address.value = post.address.road ? post.address.road + ', ' + post.address.suburb + ', ' + post.address.city + ', ' + post.address.state + ', ' + post.address.postcode : ''
+
+    address.value = ''
+    capacity.value = ''
+
+    address.value += post.address.road ? post.address.road : ''
+    address.value += post.address.suburb ? ', ' + post.address.suburb : ''
+    address.value += post.address.village ? ', ' + post.address.village : ''
+    address.value += post.address.town ? ', ' + post.address.town : ''
+    address.value += post.address.city ? ', ' + post.address.city : ''
+    address.value += post.address.state ? ', ' + post.address.state : ''
+    address.value += post.address.postcode ? ', ' + post.address.postcode : ''
+
+    if (address.value.startsWith(', ')) {
+      address.value = address.value.replace(/^, /, '');
+    }
   } catch (e) {
     console.log(e)
   }
