@@ -16,7 +16,7 @@
           </div>
         </v-card-text>
       </v-card>
-      <div class="mt-2">* Considerando a potência de um kit de 3.3 kWp (6 módulos de 555W)</div>
+      <div class="mt-2">* Considerando um kit de 3.33 kWp (6 módulos de 555W)</div>
     </VCol>
     <VCol cols="12" md="8" lg="8" v-else>
       <v-skeleton-loader v-if="latlng.lat != ''" width="230" height="75" type="image" />
