@@ -19,25 +19,19 @@ import { getCurrentInstance } from 'vue'
 
 const monthly_spend = useMonthlySpend();
 const latlng = useLatlng();
-const simulator = useSimulator();
+const use_simulator = useSimulator();
+const show_info = useShowInfo();
 const monthySpendTextFieldDisabled = useMonthySpendTextFieldDisabled();
 
 const app = getCurrentInstance()
 
 function updateMonthySpend(){
-  console.log("app")
-  console.log(app)
-  console.log("app.data")
-  console.log(app.data)
-  console.log("app.data.maskedValue")
-  console.log(app.data.maskedValue)
   monthly_spend.value = app.data.maskedValue
 }
 
-
-
 function simulate(){
-  simulator.value = true;
+  show_info.value = true;
+  use_simulator.value = true;
 }
 
 

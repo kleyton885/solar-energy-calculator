@@ -1,6 +1,6 @@
 <template>
-  <VRow v-if="getSolarInfo()" no-gutters align="center" justify="center" class="mt-4">
-    <VCol v-if="simulate && !simulator_loading" class="fill-height" cols="12" md="8" lg="8">
+  <VRow v-if="show_info" no-gutters align="center" justify="center" class="mt-4">
+    <VCol v-if="!simulator_loading && getSolarInfo()" class="fill-height" cols="12" md="8" lg="8">
       <v-card width="230">
         <v-img
           height="75"
@@ -22,7 +22,7 @@
       <div class="mt-2">Área mínima necessária do telhado: {{ areaMin }} M².</div>
     </VCol>
     <VCol v-else class="fill-height" cols="12" md="8" lg="8">
-      <v-skeleton-loader v-if="simulate && simulator_loading" width="230" height="75" type="image" />
+      <v-skeleton-loader width="230" height="75" type="image" />
     </VCol>
   </VRow>
 </template>
@@ -32,7 +32,8 @@ import { VSkeletonLoader } from 'vuetify/labs/VSkeletonLoader'
 
 const capacity = useCapacity();
 const latlng = useLatlng();
-const simulate = useSimulator();
+const show_info = useShowInfo();
+const use_simulator = useSimulator();
 const simulator_loading = useSimulatorLoading();
 const monthly_spend = useMonthlySpend();
 const monthySpendTextFieldDisabled = useMonthySpendTextFieldDisabled();
@@ -43,8 +44,9 @@ const areaMin = useAreaMin();
 
 async function getSolarInfo() {
   try {
-    simulator_loading.value = true;
-    if (simulate.value && latlng.value.lat != '' && parseInt(monthly_spend.value.replace(/[R$.,]/g, '')) > 2000) {
+    if (!simulator_loading.value && use_simulator.value) {
+      simulator_loading.value = true;
+
       // calculos com base nas informações do usuário
       let valorEmReais = monthly_spend.value.replace(/[R$.,]/g, '').slice(0, -2);
       const precokWh = 1.15 // preço do kWh em reais    (0.86 + impostos)
@@ -73,14 +75,13 @@ async function getSolarInfo() {
         capacity.value = Math.floor(capacity.value/12);
       }
 
-      // latlng.value = { lat: '', lng: '' }
-      simulator_loading.value = false;
       monthySpendTextFieldDisabled.value = true;
-    }else{
-      simulate.value = false;
+      simulator_loading.value = false;
+      use_simulator.value = false;
     }
   } catch (e) {
     console.log(e)
   }
+
 }
 </script>

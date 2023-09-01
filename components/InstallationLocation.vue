@@ -23,8 +23,9 @@ import { VSkeletonLoader } from 'vuetify/labs/VSkeletonLoader'
 
 const latlng = useLatlng();
 const capacity = useCapacity();
+const show_info = useShowInfo();
 const monthly_spend = useMonthlySpend();
-const simulate = useSimulator();
+const simulator_loading = useSimulatorLoading();
 const monthySpendTextFieldDisabled = useMonthySpendTextFieldDisabled();
 const address = ref('');
 const isContentLoaded = ref(false);
@@ -36,7 +37,8 @@ onMounted(() => {
 async function setLocation(e) {
   latlng.value = e.latlng
   monthly_spend.value = '';
-  simulate.value = false;
+  simulator_loading.value = false;
+  show_info.value = false;
   monthySpendTextFieldDisabled.value = false;
 
   try {

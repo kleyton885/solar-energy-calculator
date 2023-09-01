@@ -1,3 +1,3 @@
 export const useSimulator = () => {
-  return useState('simulator', function(){ return false})
+  return useState('use_simulator', function(){ return false})
 }
