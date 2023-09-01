@@ -8,6 +8,7 @@
     </VRow>
     <!-- <InstallationLocationType /> -->
     <InstallationLocation />
+    <MonthlyEnergySpend />
     <ProductionCapacity />
   </VContainer>
 </template>

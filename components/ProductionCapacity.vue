@@ -1,6 +1,6 @@
 <template>
   <VRow v-if="getSolarInfo()" no-gutters align="center" justify="center" class="mt-4">
-    <VCol v-if="capacity" class="fill-height" cols="12" md="8" lg="8">
+    <VCol v-if="simulate && !simulator_loading" class="fill-height" cols="12" md="8" lg="8">
       <v-card width="230">
         <v-img
           height="75"
@@ -16,10 +16,13 @@
           </div>
         </v-card-text>
       </v-card>
-      <div class="mt-2">* Considerando um kit de 3.33 kWp (6 módulos de 555W)</div>
+      <div class="mt-2">Com base nas informações fornecidas:</div>
+      <div class="mt-2">Você tem um consumo médio de {{ kWh }} Watts por mês.</div>
+      <div class="mt-2">* Com um kit de {{ kWp }} kWp ou {{ qt_modulos }} módulos de 555W.</div>
+      <div class="mt-2">Área mínima necessária do telhado: {{ areaMin }} M².</div>
     </VCol>
-    <VCol cols="12" md="8" lg="8" v-else>
-      <v-skeleton-loader v-if="latlng.lat != ''" width="230" height="75" type="image" />
+    <VCol v-else class="fill-height" cols="12" md="8" lg="8">
+      <v-skeleton-loader v-if="simulate && simulator_loading" width="230" height="75" type="image" />
     </VCol>
   </VRow>
 </template>
@@ -29,13 +32,38 @@ import { VSkeletonLoader } from 'vuetify/labs/VSkeletonLoader'
 
 const capacity = useCapacity();
 const latlng = useLatlng();
+const simulate = useSimulator();
+const simulator_loading = useSimulatorLoading();
+const monthly_spend = useMonthlySpend();
+const monthySpendTextFieldDisabled = useMonthySpendTextFieldDisabled();
+const kWh = useKWh();
+const kWp = useKWp();
+const qt_modulos = useQtModulos();
+const areaMin = useAreaMin();
 
-async function getSolarInfo(e) {
+async function getSolarInfo() {
   try {
-    if (latlng.value.lat != '') {
+    simulator_loading.value = true;
+    if (simulate.value && latlng.value.lat != '' && parseInt(monthly_spend.value.replace(/[R$.,]/g, '')) > 2000) {
+      // calculos com base nas informações do usuário
+      let valorEmReais = monthly_spend.value.replace(/[R$.,]/g, '').slice(0, -2);
+      const precokWh = 1.15 // preço do kWh em reais    (0.86 + impostos)
+      const potenciaModulo = 0.555 // potência do módulo em W
+      kWh.value = valorEmReais/precokWh // kWh gasto mensalmente pelo usuario
+      kWp.value = (kWh.value*7/potenciaModulo)/1000 // potência do kit necessária
+      qt_modulos.value = Math.ceil(kWp.value / potenciaModulo); // quantidade de módulos necessários
+      kWp.value = (qt_modulos.value * potenciaModulo).toFixed(2); // nova potencia do kit ajustada
+      kWh.value = Math.ceil(kWh.value); // novo kWh gasto mensalmente pelo usuario ajustado
+      areaMin.value = Math.ceil(kWp.value*7) // area minima do telhado necessária
+
+      // console.log("Consumo mensal: " + kWh.value + " kWh")
+      // console.log("Potência do kit necessária: " + kWp.value + " kWP")
+      // console.log("Área mínima necessária: " + areaMin.value + " M²")
+      // console.log("Quantidade de módulos necessários: " + qt_modulos.value + " módulos de " + potenciaModulo + " W" + "\n\n")
+
       const post = await $fetch('https://api.globalsolaratlas.info/data/pvcalc?loc='+latlng.value.lat+','+latlng.value.lng, {
         method: 'POST',
-        body: '{"type":"rooftopSmall","systemSize":{"type":"capacity","value":3.33},"orientation":{"azimuth":0,"tilt":9}}'
+        body: '{"type":"rooftopSmall","systemSize":{"type":"capacity","value":'+kWp.value+'},"orientation":{"azimuth":0,"tilt":9}}'
       });
       capacity.value = post.annual.data.PVOUT_total
 
@@ -45,8 +73,11 @@ async function getSolarInfo(e) {
         capacity.value = Math.floor(capacity.value/12);
       }
 
-
-      latlng.value = { lat: '', lng: '' }
+      // latlng.value = { lat: '', lng: '' }
+      simulator_loading.value = false;
+      monthySpendTextFieldDisabled.value = true;
+    }else{
+      simulate.value = false;
     }
   } catch (e) {
     console.log(e)
