@@ -5,7 +5,7 @@
         <h3>2. Qual a mensalidade da sua conta de luz atualmente?</h3>
       </div>
       <v-text-field :disabled="monthySpendTextFieldDisabled" v-model="maskedValue" variant="outlined" class="mt-2" label="Valor em Reais"
-       @update:focused="finish_monthly_spend(this)" @input="updateValue()"></v-text-field>
+       @input="updateValue(); updateMonthySpend();"></v-text-field>
     </VCol>
     <VCol class="fill-height" cols="12" md="8" lg="8">
       <v-btn @click="simulate(); btn_calc_disabled=true" :disabled="btn_calc_disabled" color="green-darken-1" size="large">CLIQUE AQUI PARA SIMULAR</v-btn>
@@ -15,22 +15,32 @@
 
 
 <script setup>
+import { getCurrentInstance } from 'vue'
+
 const monthly_spend = useMonthlySpend();
 const latlng = useLatlng();
 const simulator = useSimulator();
 const monthySpendTextFieldDisabled = useMonthySpendTextFieldDisabled();
 
-function finish_monthly_spend(e) {
-  console.log("e:")
-  console.log(e)
-  if (e && e.maskedValue){
-    monthly_spend.value = e.maskedValue
-  }
+const app = getCurrentInstance()
+
+function updateMonthySpend(){
+  console.log("app")
+  console.log(app)
+  console.log("app.data")
+  console.log(app.data)
+  console.log("app.data.maskedValue")
+  console.log(app.data.maskedValue)
+  monthly_spend.value = app.data.maskedValue
 }
+
+
 
 function simulate(){
   simulator.value = true;
 }
+
+
 </script>
 
 <script>

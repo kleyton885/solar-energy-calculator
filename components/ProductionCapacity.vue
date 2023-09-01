@@ -44,9 +44,6 @@ const areaMin = useAreaMin();
 async function getSolarInfo() {
   try {
     simulator_loading.value = true;
-    console.log("replace 4")
-    console.log(monthly_spend)
-    console.log(monthly_spend.value)
     if (simulate.value && latlng.value.lat != '' && parseInt(monthly_spend.value.replace(/[R$.,]/g, '')) > 2000) {
       // calculos com base nas informações do usuário
       let valorEmReais = monthly_spend.value.replace(/[R$.,]/g, '').slice(0, -2);
