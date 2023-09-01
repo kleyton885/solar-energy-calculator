@@ -21,6 +21,8 @@ const simulator = useSimulator();
 const monthySpendTextFieldDisabled = useMonthySpendTextFieldDisabled();
 
 function finish_monthly_spend(e) {
+  console.log("e:")
+  console.log(e)
   if (e && e.maskedValue){
     monthly_spend.value = e.maskedValue
   }
