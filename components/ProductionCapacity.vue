@@ -44,8 +44,10 @@ const areaMin = useAreaMin();
 async function getSolarInfo() {
   try {
     simulator_loading.value = true;
+    console.log("replace 4")
     if (simulate.value && latlng.value.lat != '' && parseInt(monthly_spend.value.replace(/[R$.,]/g, '')) > 2000) {
       // calculos com base nas informações do usuário
+      console.log("replace 5")
       let valorEmReais = monthly_spend.value.replace(/[R$.,]/g, '').slice(0, -2);
       const precokWh = 1.15 // preço do kWh em reais    (0.86 + impostos)
       const potenciaModulo = 0.555 // potência do módulo em W

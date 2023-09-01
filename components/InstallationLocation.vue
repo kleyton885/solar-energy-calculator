@@ -59,6 +59,7 @@ async function setLocation(e) {
     address.value += post.address.postcode ? ', ' + post.address.postcode : ''
 
     if (address.value.startsWith(', ')) {
+      console.log("replace 3")
       address.value = address.value.replace(/^, /, '');
     }
   } catch (e) {
