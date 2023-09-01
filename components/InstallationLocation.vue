@@ -35,7 +35,7 @@ onMounted(() => {
 
 async function setLocation(e) {
   latlng.value = e.latlng
-  monthly_spend.value = 0;
+  monthly_spend.value = '';
   simulate.value = false;
   monthySpendTextFieldDisabled.value = false;
 
@@ -59,7 +59,6 @@ async function setLocation(e) {
     address.value += post.address.postcode ? ', ' + post.address.postcode : ''
 
     if (address.value.startsWith(', ')) {
-      console.log("replace 3")
       address.value = address.value.replace(/^, /, '');
     }
   } catch (e) {

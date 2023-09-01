@@ -46,7 +46,6 @@ export default {
         return this.split('').reverse().join('');
       };
 
-      console.log("replace 1")
       this.value  =  this.maskedValue.replace(/[^\d]+/gi,'').reverse();
       var resultado  = "";
       var mascara = "##.###,##".reverse();
@@ -61,7 +60,6 @@ export default {
         }
       }
       this.maskedValue = 'R$ ' + resultado.reverse();
-      console.log ("replace 2")
       this.value = this.maskedValue.replace(/[R$.,]/g, '');
       this.btn_calc_disabled = parseInt(this.value) > 2000 ? false : true
     },
