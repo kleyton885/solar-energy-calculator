@@ -10,7 +10,8 @@
     "postinstall": "nuxt prepare"
   },
   "engines": {
-    "node": "16.15.1"
+    "node": "16.15.1",
+    "npm": "8.11.0"
   },
   "devDependencies": {
     "@invictus.codes/nuxt-vuetify": "^0.3.0",
