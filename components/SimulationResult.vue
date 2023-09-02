@@ -4,8 +4,8 @@
       <p class="font-weight-bold text-overline">Resultado</p>
     </VCol>
 
-    <VCol v-if="getSolarInfo()" cols="8">
-      <div style="gap: 10px" class="d-flex justify-space-between">
+    <VCol v-if="getSolarInfo()" cols="12">
+      <div style="gap: 10px" class="d-flex flex-wrap justify-space-between">
         <ProductionCapacity />
         <KitPower />
         <AreaMin />
@@ -70,9 +70,3 @@ async function getSolarInfo() {
 
 }
 </script>
-
-<style>
-p {
-  font-family: 'FarAwayGalaxy', sans-serif;
-}
-</style>
