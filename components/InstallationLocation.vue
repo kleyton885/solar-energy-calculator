@@ -1,21 +1,19 @@
 <template>
-    <VRow no-gutters align="center" justify="center" class="mt-4">
-      <VCol class="fill-height" cols="12" md="8" lg="8">
-        <div>
-          <h3>1. Aponte o local onde pretende realizar a instalação</h3>
-        </div>
-        <div id="map-wrap" style="height: 300px">
-          <client-only v-if="isContentLoaded">
-          <l-map @click="setLocation" :zoom=13 :center="[-9.643112, -35.718860]">
-            <l-tile-layer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></l-tile-layer>
-            <l-marker :lat-lng=latlng></l-marker>
-          </l-map>
-          </client-only>
-          <v-skeleton-loader type="image, image" v-else />
-        </div>
-        <div>{{ address }}</div>
-      </VCol>
-    </VRow>
+    <VCol class="fill-height mt-9" cols="12" lg="6" md="6" sm="10">
+      <div>
+        <h3>1. Aponte o local onde pretende realizar a instalação</h3>
+      </div>
+      <div id="map-wrap" style="height: 300px">
+        <client-only v-if="isContentLoaded">
+        <l-map @click="setLocation" :zoom=13 :center="[-9.643112, -35.718860]">
+          <l-tile-layer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></l-tile-layer>
+          <l-marker :lat-lng=latlng></l-marker>
+        </l-map>
+        </client-only>
+        <v-skeleton-loader type="image, image" v-else />
+      </div>
+      <div>{{ address }}</div>
+    </VCol>
 </template>
 
 <script setup>

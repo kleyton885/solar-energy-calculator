@@ -1,16 +1,12 @@
 <template>
-  <VRow v-if="latlng.lat != ''" no-gutters align="center" justify="center" class="mt-4">
-    <VCol class="fill-height" cols="12" md="8" lg="8">
-      <div>
-        <h3>2. Qual a mensalidade da sua conta de luz atualmente?</h3>
-      </div>
-      <v-text-field :disabled="monthySpendTextFieldDisabled" v-model="maskedValue" variant="outlined" class="mt-2" label="Valor em Reais"
-       @input="updateValue(); updateMonthySpend();"></v-text-field>
-    </VCol>
-    <VCol class="fill-height" cols="12" md="8" lg="8">
-      <v-btn @click="simulate(); btn_calc_disabled=true" :disabled="btn_calc_disabled" color="green-darken-1" size="large">CLIQUE AQUI PARA SIMULAR</v-btn>
-    </VCol>
-  </VRow>  
+  <VCol v-if="latlng.lat != ''" class="fill-height mt-8" cols="12" lg="6" md="6" sm="10">
+    <div>
+      <h3>2. Qual a mensalidade da sua conta de luz atualmente?</h3>
+    </div>
+    <v-text-field :disabled="monthySpendTextFieldDisabled" v-model="maskedValue" variant="outlined" class="mt-2" label="Valor em Reais"
+      @input="updateValue(); updateMonthySpend();"></v-text-field>
+      <v-btn @click="simulate(); btn_calc_disabled=true" :disabled="btn_calc_disabled" variant="outlined" color="green-darken-1">CLIQUE AQUI PARA SIMULAR</v-btn>
+  </VCol>
 </template>
 
 
@@ -33,8 +29,6 @@ function simulate(){
   show_info.value = true;
   use_simulator.value = true;
 }
-
-
 </script>
 
 <script>
