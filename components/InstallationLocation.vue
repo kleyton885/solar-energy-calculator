@@ -1,7 +1,7 @@
 <template>
     <VCol class="fill-height mt-9" cols="12" lg="6" md="6" sm="10">
       <div>
-        <h3>1. Aponte o local onde pretende realizar a instalação</h3>
+        <h3 class="text-green-lighten-1">1. Aponte o local onde pretende realizar a instalação</h3>
       </div>
       <div id="map-wrap" style="height: 300px">
         <client-only v-if="isContentLoaded">
@@ -67,3 +67,9 @@ async function setLocation(e) {
 
 }
 </script>
+
+<style>
+h3 {
+  font-family: "Raleway";
+}
+</style>

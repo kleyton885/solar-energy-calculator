@@ -1,7 +1,7 @@
 <template>
   <VCol v-if="latlng.lat != ''" class="fill-height mt-8" cols="12" lg="6" md="6" sm="10">
     <div>
-      <h3>2. Qual a mensalidade da sua conta de luz atualmente?</h3>
+      <h3 class="text-green-lighten-1">2. Qual a mensalidade da sua conta de luz atualmente?</h3>
     </div>
     <v-text-field :disabled="monthySpendTextFieldDisabled" v-model="maskedValue" variant="outlined" class="mt-2" label="Valor em Reais"
       @input="updateValue(); updateMonthySpend();"></v-text-field>

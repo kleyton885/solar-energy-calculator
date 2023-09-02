@@ -11,7 +11,7 @@
   <!-- <div class="mt-2">* Com um kit de {{ kWp }} kWp ou {{ qt_modulos }} módulos de 555W.</div>
     <div class="mt-2">Você tem um consumo médio de {{ kWh }} Watts por mês.</div>
     <div class="mt-2">Área mínima necessária do telhado: {{ areaMin }} M².</div> -->
-  <v-skeleton-loader v-else width="250" height="75" type="image" />
+  <v-skeleton-loader class="flex-grow-1 pt-4" v-else width="250" height="75" type="image" />
 </template>
 
 <script setup>
