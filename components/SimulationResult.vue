@@ -6,8 +6,11 @@
 
     <VCol v-if="getSolarInfo()" cols="12">
       <div style="gap: 10px" class="d-flex flex-wrap justify-space-between">
-        <ProductionCapacity />
+        <ImplatationCost />
         <KitPower />
+        <QtModulos />
+        <ProductionCapacity />
+        <Payback />
         <AreaMin />
       </div>
     </VCol>
@@ -20,6 +23,8 @@ const latlng = useLatlng();
 const show_info = useShowInfo();
 const use_simulator = useSimulator();
 const simulator_loading = useSimulatorLoading();
+const payback = usePayback();
+const implatationCost = useImplatationCost();
 const monthly_spend = useMonthlySpend();
 const monthySpendTextFieldDisabled = useMonthySpendTextFieldDisabled();
 const kWh = useKWh();
@@ -27,13 +32,65 @@ const kWp = useKWp();
 const qt_modulos = useQtModulos();
 const areaMin = useAreaMin();
 
+function calcularPrecoMedio(kWp) {
+  const capacidades = [2, 4, 8, 12, 30, 50, 75, 150, 300, 500, 1000];
+  const precos = [
+    10840, 17560, 31360, 44040, 100800, 186500, 280000, 531000, 1041000, 1780000, 3710000
+  ];
+
+  for (let i = 0; i < capacidades.length - 1; i++) {
+    if (kWp <= capacidades[i + 1]) {
+      const capacidadeMenor = capacidades[i];
+      const capacidadeMaior = capacidades[i + 1];
+      const precoMenor = precos[i];
+      const precoMaior = precos[i + 1];
+
+      // Interpolação linear para calcular o preço médio aproximado
+      const precoMedio = precoMenor + ((kWp - capacidadeMenor) / (capacidadeMaior - capacidadeMenor)) * (precoMaior - precoMenor);
+
+      return parseInt(precoMedio);
+    }
+  }
+
+  // Se kWp for maior do que a maior capacidade listada, retorne o preço máximo
+  return precos[capacidades.length - 1];
+}
+
+function converterMesesParaAnosEMeses(meses) {
+  if (meses <= 0) {
+    return "0 meses";
+  } else if (meses < 12) {
+    return meses + " meses";
+  } else {
+    const anos = Math.floor(meses / 12);
+    const mesesRestantes = meses % 12;
+
+    let resultado = "";
+
+    if (anos > 0) {
+      resultado += anos + " ano";
+      if (anos > 1) resultado += "s";
+      resultado += " ";
+    }
+
+    if (mesesRestantes > 0) {
+      resultado += "e " + mesesRestantes + " mês";
+      if (mesesRestantes > 1) resultado += "es";
+    }
+
+    resultado = resultado.replace("mêses", "meses");
+
+    return resultado;
+  }
+}
+
 async function getSolarInfo() {
   try {
     if (!simulator_loading.value && use_simulator.value) {
       simulator_loading.value = true;
 
       // calculos com base nas informações do usuário
-      let valorEmReais = monthly_spend.value.replace(/[R$.,]/g, '').slice(0, -2);
+      let valorEmReais = parseFloat(monthly_spend.value.replace(/[R$.,]/g, '').slice(0, -2));
       const precokWh = 1.15 // preço do kWh em reais    (0.86 + impostos)
       const potenciaModulo = 0.555 // potência do módulo em W
       kWh.value = valorEmReais/precokWh // kWh gasto mensalmente pelo usuario
@@ -42,11 +99,14 @@ async function getSolarInfo() {
       kWp.value = (qt_modulos.value * potenciaModulo).toFixed(2); // nova potencia do kit ajustada
       kWh.value = Math.ceil(kWh.value); // novo kWh gasto mensalmente pelo usuario ajustado
       areaMin.value = Math.ceil(kWp.value*7) // area minima do telhado necessária
+      implatationCost.value = calcularPrecoMedio(kWp.value);
+      // const custoImplantacaoReais = implatationCost.value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'});
 
       // console.log("Consumo mensal: " + kWh.value + " kWh")
       // console.log("Potência do kit necessária: " + kWp.value + " kWP")
       // console.log("Área mínima necessária: " + areaMin.value + " M²")
-      // console.log("Quantidade de módulos necessários: " + qt_modulos.value + " módulos de " + potenciaModulo + " W" + "\n\n")
+      // console.log("Quantidade de módulos necessários: " + qt_modulos.value + " módulos de " + potenciaModulo + " W")
+      // console.log("Custo de Implantação estimado: " + custoImplantacaoReais + "\n\n")
 
       const post = await $fetch('https://api.globalsolaratlas.info/data/pvcalc?loc='+latlng.value.lat+','+latlng.value.lng, {
         method: 'POST',
@@ -59,6 +119,13 @@ async function getSolarInfo() {
       } else {
         capacity.value = Math.floor(capacity.value/12);
       }
+
+      // Calculando o tempo de retorno que é igual a implatationCost.value / economiaMensal onde a economia mensal é consumoAntes - ProduçãoSolarEmKhw*precokWh
+      const economiaMensal = valorEmReais - capacity.value*precokWh;
+      payback.value = Math.abs(implatationCost.value / economiaMensal);
+      payback.value = converterMesesParaAnosEMeses(payback.value.toFixed(0)); // tempo de retorno do investimento
+      // console.log(`O tempo de retorno do investimento é de aproximadamente ${payback.value}.`);
+
 
       monthySpendTextFieldDisabled.value = true;
       simulator_loading.value = false;
