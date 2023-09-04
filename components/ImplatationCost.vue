@@ -1,6 +1,6 @@
 <template>
   <v-card v-if="!simulator_loading" width="250" class="flex-grow-1 pt-4">
-    <v-img height="75" src="img/refund.png" class="text-white"></v-img>
+    <v-img height="75" src="img/implatationCost.png" class="text-white"></v-img>
     <v-card-text>
       <div class="font-weight-bold ms-1 mb-2 d-flex flex-column align-items-center">
         <div id="card-key" class="text-center">Custo de Implantação</div>
