@@ -13,7 +13,7 @@
       @input="setUserEmail()" label="Digite seu email aqui.." :disabled="formOptionsDisabled"
       required></v-text-field>
     <v-checkbox @click="checkTermos" :disabled="formOptionsDisabled" v-model="termosAceitos" label="Concordo que meu email será coletado apenas para uso interno e não será compartilhado com terceiros."></v-checkbox>
-    <v-btn class="mt-2" @click="validate()" :disabled="btn_simulate_disabled" variant="outlined"
+    <v-btn @click="validate()" :disabled="btn_simulate_disabled" variant="outlined"
       color="green-darken-1">CLIQUE AQUI
       PARA SIMULAR</v-btn>
   </VCol>
@@ -81,10 +81,8 @@ function isValidMonthySpend() {
 }
 
 function validate() {
-  if (app.ctx.$refs.form.validate()) {
-    if (isValidMail() && isValidMonthySpend()) {
-      simulate();
-    }
+  if (isValidMail() && isValidMonthySpend()) {
+    simulate();
   }
 }
 
