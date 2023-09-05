@@ -27,6 +27,7 @@ const payback = usePayback();
 const implatationCost = useImplatationCost();
 const monthly_spend = useMonthlySpend();
 const monthySpendTextFieldDisabled = useMonthySpendTextFieldDisabled();
+const userMailTextFieldDisabled = useUserMailTextFieldDisabled();
 const kWh = useKWh();
 const kWp = useKWp();
 const qt_modulos = useQtModulos();
@@ -90,11 +91,18 @@ async function getSolarInfo() {
       simulator_loading.value = true;
 
       // calculos com base nas informações do usuário
-      let valorEmReais = parseFloat(monthly_spend.value.replace(/[R$.,]/g, '').slice(0, -2));
-      const precokWh = 1.15 // preço do kWh em reais    (0.86 + impostos)
-      const potenciaModulo = 0.555 // potência do módulo em W
-      kWh.value = valorEmReais/precokWh // kWh gasto mensalmente pelo usuario
-      kWp.value = (kWh.value*7/potenciaModulo)/1000 // potência do kit necessária
+      let valorDaConta = parseFloat(monthly_spend.value.replace(/[R$.,]/g, '').slice(0, -2));
+      const impostosPorKwh = 0.49; // tributos federais, estaduais, taxa de iluminação pública e outros impostos
+      const precoPorKwh = 0.86; // preço do kWh em reais
+      const potenciaModulo = 0.555 // potência do módulo em Watt
+      kWh.value = valorDaConta/(precoPorKwh + impostosPorKwh) // kWh gasto mensalmente pelo usuario
+      // calculando a eficiência do local para geração com um sistema de 1 kWp
+      let geracaoMensalPorKwp = await $fetch('https://api.globalsolaratlas.info/data/pvcalc?loc='+latlng.value.lat+','+latlng.value.lng, {
+        method: 'POST',
+        body: '{"type":"rooftopSmall","systemSize":{"type":"capacity","value":1},"orientation":{"azimuth":0,"tilt":9}}'
+      });
+      geracaoMensalPorKwp = Math.ceil(geracaoMensalPorKwp.annual.data.PVOUT_total/12)
+      kWp.value = kWh.value / geracaoMensalPorKwp;  // potência do kit necessária
       qt_modulos.value = Math.ceil(kWp.value / potenciaModulo); // quantidade de módulos necessários
       kWp.value = (qt_modulos.value * potenciaModulo).toFixed(2); // nova potencia do kit ajustada
       kWh.value = Math.ceil(kWh.value); // novo kWh gasto mensalmente pelo usuario ajustado
@@ -108,6 +116,8 @@ async function getSolarInfo() {
       // console.log("Quantidade de módulos necessários: " + qt_modulos.value + " módulos de " + potenciaModulo + " W")
       // console.log("Custo de Implantação estimado: " + custoImplantacaoReais + "\n\n")
 
+
+
       const post = await $fetch('https://api.globalsolaratlas.info/data/pvcalc?loc='+latlng.value.lat+','+latlng.value.lng, {
         method: 'POST',
         body: '{"type":"rooftopSmall","systemSize":{"type":"capacity","value":'+kWp.value+'},"orientation":{"azimuth":0,"tilt":9}}'
@@ -120,14 +130,15 @@ async function getSolarInfo() {
         capacity.value = Math.floor(capacity.value/12);
       }
 
-      // Calculando o tempo de retorno que é igual a implatationCost.value / economiaMensal onde a economia mensal é consumoAntes - ProduçãoSolarEmKhw*precokWh
-      const economiaMensal = valorEmReais - capacity.value*precokWh;
+      // Calculando o tempo de retorno que é igual a implatationCost.value / economiaMensal onde a economia mensal é consumoAntes - ProduçãoSolarEmKhw*precoPorKwh
+      const economiaMensal = valorDaConta - (capacity.value*precoPorKwh) + (kWh.value*0.49);
       payback.value = Math.abs(implatationCost.value / economiaMensal);
       payback.value = converterMesesParaAnosEMeses(payback.value.toFixed(0)); // tempo de retorno do investimento
       // console.log(`O tempo de retorno do investimento é de aproximadamente ${payback.value}.`);
 
 
       monthySpendTextFieldDisabled.value = true;
+      userMailTextFieldDisabled.value = true;
       simulator_loading.value = false;
       use_simulator.value = false;
     }

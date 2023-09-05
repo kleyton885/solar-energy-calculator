@@ -18,13 +18,14 @@
 
 <script setup>
 import { VSkeletonLoader } from 'vuetify/labs/VSkeletonLoader'
-
 const latlng = useLatlng();
 const capacity = useCapacity();
 const show_info = useShowInfo();
 const monthly_spend = useMonthlySpend();
+const userMail = useUserMail();
 const simulator_loading = useSimulatorLoading();
 const monthySpendTextFieldDisabled = useMonthySpendTextFieldDisabled();
+const userMailTextFieldDisabled = useUserMailTextFieldDisabled();
 const address = ref('');
 const isContentLoaded = ref(false);
 
@@ -35,9 +36,11 @@ onMounted(() => {
 async function setLocation(e) {
   latlng.value = e.latlng
   monthly_spend.value = '';
+  userMail.value = '';
   simulator_loading.value = false;
   show_info.value = false;
   monthySpendTextFieldDisabled.value = false;
+  userMailTextFieldDisabled.value = false;
 
   try {
     const post = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=` + latlng.value.lat
