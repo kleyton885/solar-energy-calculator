@@ -26,8 +26,7 @@ const simulator_loading = useSimulatorLoading();
 const payback = usePayback();
 const implatationCost = useImplatationCost();
 const monthly_spend = useMonthlySpend();
-const monthySpendTextFieldDisabled = useMonthySpendTextFieldDisabled();
-const userMailTextFieldDisabled = useUserMailTextFieldDisabled();
+const formOptionsDisabled = useFormOptionsDisabled();
 const kWh = useKWh();
 const kWp = useKWp();
 const qt_modulos = useQtModulos();
@@ -89,6 +88,7 @@ async function getSolarInfo() {
   try {
     if (!simulator_loading.value && use_simulator.value) {
       simulator_loading.value = true;
+      formOptionsDisabled.value = true;
 
       // calculos com base nas informações do usuário
       let valorDaConta = parseFloat(monthly_spend.value.replace(/[R$.,]/g, '').slice(0, -2));
@@ -136,9 +136,7 @@ async function getSolarInfo() {
       payback.value = converterMesesParaAnosEMeses(payback.value.toFixed(0)); // tempo de retorno do investimento
       // console.log(`O tempo de retorno do investimento é de aproximadamente ${payback.value}.`);
 
-
-      monthySpendTextFieldDisabled.value = true;
-      userMailTextFieldDisabled.value = true;
+      formOptionsDisabled.value = true;
       simulator_loading.value = false;
       use_simulator.value = false;
     }

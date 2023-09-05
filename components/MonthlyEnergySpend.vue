@@ -3,14 +3,18 @@
     <div>
       <h3 class="text-green-lighten-1">2. Qual a mensalidade da sua conta de luz atualmente?</h3>
     </div>
-    <v-text-field :disabled="monthySpendTextFieldDisabled" v-model="monthySpendMasked" variant="outlined" class="mt-2"
-      label="Valor em Reais" @input="validateMonthySpend(); setStateMonthySpend();" :rules="monthlySpendRules" required></v-text-field>
+    <v-text-field :disabled="formOptionsDisabled" v-model="monthySpendMasked" variant="outlined" class="mt-2"
+      label="Valor em Reais" maxlength="12" @input="validateMonthySpend(); setStateMonthySpend();" :rules="monthlySpendRules"
+      required></v-text-field>
     <div>
       <h3 class="text-green-lighten-1">3. Qual seu email?</h3>
     </div>
     <v-text-field ref="form" class="mt-2" variant="outlined" v-model="userEmail" :rules="emailRules"
-      @input="setUserEmail()" label="Digite seu email aqui.." :disabled="userMailTextFieldDisabled" required></v-text-field>
-    <v-btn class="mt-2" @click="validate()" :disabled="btn_simulate_disabled" variant="outlined" color="green-darken-1">CLIQUE AQUI
+      @input="setUserEmail()" label="Digite seu email aqui.." :disabled="formOptionsDisabled"
+      required></v-text-field>
+    <v-checkbox @click="checkTermos" :disabled="formOptionsDisabled" v-model="termosAceitos" label="Concordo que meu email será coletado apenas para uso interno e não será compartilhado com terceiros."></v-checkbox>
+    <v-btn class="mt-2" @click="validate()" :disabled="btn_simulate_disabled" variant="outlined"
+      color="green-darken-1">CLIQUE AQUI
       PARA SIMULAR</v-btn>
   </VCol>
 </template>
@@ -25,22 +29,46 @@ const userMail = useUserMail();
 const latlng = useLatlng();
 const use_simulator = useSimulator();
 const show_info = useShowInfo();
-const monthySpendTextFieldDisabled = useMonthySpendTextFieldDisabled();
-const userMailTextFieldDisabled = useUserMailTextFieldDisabled();
+const formOptionsDisabled = useFormOptionsDisabled();
+
+String.prototype.reverse = function () {
+  return this.split('').reverse().join('');
+};
 
 setInterval(() => {
-  app.data.monthySpendMasked = monthly_spend.value
+  app.data.monthySpend = monthly_spend.value.replace(/[^\d]+/gi, '').reverse();
+  var resultado = "";
+  var mascara = "##.###,##".reverse();
+  for (var x = 0, y = 0; x < mascara.length && y < app.data.monthySpend.length;) {
+    if (mascara.charAt(x) != '#') {
+      resultado += mascara.charAt(x);
+      x++;
+    } else {
+      resultado += app.data.monthySpend.charAt(y);
+      y++;
+      x++;
+    }
+  }
+  
+  app.data.monthySpendMasked = resultado.length > 0 ? 'R$ ' + resultado.reverse() : resultado.reverse();
+
+  app.data.monthySpend = monthly_spend.value
   app.data.userEmail = userMail.value
-}, 500);
+  checkTermos();
+}, 300);
 
 function setStateMonthySpend() {
-  monthly_spend.value = app.data.monthySpendMasked
-  app.data.btn_simulate_disabled = isValidMonthySpend() && isValidMail() ? false : true;
+  monthly_spend.value = app.data.monthySpendMasked.replace(/[R$.,]/g, '');
+  app.data.btn_simulate_disabled = isValidMonthySpend() && isValidMail() && app.data.termosAceitos ? false : true;
+}
+
+function checkTermos(){
+  app.data.btn_simulate_disabled = isValidMonthySpend() && isValidMail() && app.data.termosAceitos ? false : true;
 }
 
 function setUserEmail() {
   userMail.value = app.data.userEmail
-  app.data.btn_simulate_disabled = isValidMail() && isValidMonthySpend() ? false : true;
+  app.data.btn_simulate_disabled = isValidMail() && isValidMonthySpend() && app.data.termosAceitos ? false : true;
 }
 
 function isValidMail() {
@@ -48,7 +76,7 @@ function isValidMail() {
   return regex.test(app.data.userEmail);
 }
 
-function isValidMonthySpend(){
+function isValidMonthySpend() {
   return parseInt(app.data.monthySpend) >= 15000 ? true : false
 }
 
@@ -64,6 +92,7 @@ function simulate() {
   show_info.value = true;
   use_simulator.value = true;
   app.data.btn_simulate_disabled = true;
+  app.data.termosAceitos = false;
 }
 </script>
 
@@ -74,6 +103,7 @@ export default {
       monthySpend: '',
       monthySpendMasked: '',
       btn_simulate_disabled: true,
+      termosAceitos: false,
       userEmail: '',
       monthlySpendRules: [
         v => !!v || 'Valor da conta de luz é obrigatório',

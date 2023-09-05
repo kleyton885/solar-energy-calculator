@@ -24,8 +24,7 @@ const show_info = useShowInfo();
 const monthly_spend = useMonthlySpend();
 const userMail = useUserMail();
 const simulator_loading = useSimulatorLoading();
-const monthySpendTextFieldDisabled = useMonthySpendTextFieldDisabled();
-const userMailTextFieldDisabled = useUserMailTextFieldDisabled();
+const formOptionsDisabled = useFormOptionsDisabled();
 const address = ref('');
 const isContentLoaded = ref(false);
 
@@ -39,8 +38,7 @@ async function setLocation(e) {
   userMail.value = '';
   simulator_loading.value = false;
   show_info.value = false;
-  monthySpendTextFieldDisabled.value = false;
-  userMailTextFieldDisabled.value = false;
+  formOptionsDisabled.value = false;
 
   try {
     const post = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=` + latlng.value.lat
