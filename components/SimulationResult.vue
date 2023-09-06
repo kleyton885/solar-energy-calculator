@@ -1,16 +1,17 @@
 <template>
-  <VRow v-if="show_info" justify="center">
+  <VRow style="minHeight: 700px; display: inline" v-if="show_info">
     <VCol class="mt-8" align="center" cols="12">
-      <p class="font-weight-bold text-overline">Resultado</p>
+      <p id="resultado" class="font-weight-bold text-overline">Resultado da Simulação</p>
     </VCol>
 
     <VCol v-if="getSolarInfo()" cols="12">
       <div style="gap: 10px" class="d-flex flex-wrap justify-space-between">
         <ImplatationCost />
+        <AnnualSavings />
+        <Payback />
         <KitPower />
         <QtModulos />
         <ProductionCapacity />
-        <Payback />
         <AreaMin />
       </div>
     </VCol>
@@ -26,6 +27,7 @@ const simulator_loading = useSimulatorLoading();
 const payback = usePayback();
 const implatationCost = useImplatationCost();
 const monthly_spend = useMonthlySpend();
+const annualSavings = useAnnualSavings();
 const formOptionsDisabled = useFormOptionsDisabled();
 const kWh = useKWh();
 const kWp = useKWp();
@@ -93,6 +95,7 @@ async function getSolarInfo() {
       // calculos com base nas informações do usuário
       let valorDaConta = parseFloat(monthly_spend.value.replace(/[R$.,]/g, '').slice(0, -2));
       const impostosPorKwh = 0.49; // tributos federais, estaduais, taxa de iluminação pública e outros impostos
+      const taxaMinimaConcessionaria = 30; // taxa mínima em kWh cobrado pela concessionaria
       const precoPorKwh = 0.86; // preço do kWh em reais
       const potenciaModulo = 0.555 // potência do módulo em Watt
       kWh.value = valorDaConta/(precoPorKwh + impostosPorKwh) // kWh gasto mensalmente pelo usuario
@@ -103,6 +106,7 @@ async function getSolarInfo() {
       });
       geracaoMensalPorKwp = Math.ceil(geracaoMensalPorKwp.annual.data.PVOUT_total/12)
       kWp.value = kWh.value / geracaoMensalPorKwp;  // potência do kit necessária
+      kWp.value = kWp.value + kWp.value * 0.3 // potência do kit ideal (30% a mais do que a necessária para compensar obstaculos quem possam baixar a eficiencia da produção)
       qt_modulos.value = Math.ceil(kWp.value / potenciaModulo); // quantidade de módulos necessários
       kWp.value = (qt_modulos.value * potenciaModulo).toFixed(2); // nova potencia do kit ajustada
       kWh.value = Math.ceil(kWh.value); // novo kWh gasto mensalmente pelo usuario ajustado
@@ -130,8 +134,9 @@ async function getSolarInfo() {
         capacity.value = Math.floor(capacity.value/12);
       }
 
-      // Calculando o tempo de retorno que é igual a implatationCost.value / economiaMensal onde a economia mensal é consumoAntes - ProduçãoSolarEmKhw*precoPorKwh
-      const economiaMensal = valorDaConta - (capacity.value*precoPorKwh) + (kWh.value*0.49);
+      // Calculando o tempo de retorno que é igual a implatationCost.value / economiaMensal onde a economia mensal é consumoAntes - consumoDepois
+      const economiaMensal = valorDaConta - (taxaMinimaConcessionaria*precoPorKwh + taxaMinimaConcessionaria*impostosPorKwh);
+      annualSavings.value = economiaMensal*12;
       payback.value = Math.abs(implatationCost.value / economiaMensal);
       payback.value = converterMesesParaAnosEMeses(payback.value.toFixed(0)); // tempo de retorno do investimento
       // console.log(`O tempo de retorno do investimento é de aproximadamente ${payback.value}.`);

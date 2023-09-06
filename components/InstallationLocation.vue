@@ -40,6 +40,16 @@ async function setLocation(e) {
   show_info.value = false;
   formOptionsDisabled.value = false;
 
+  const scrollInterval = setInterval(() => {
+    if (document) {
+      if (document.getElementById('resultado')) {
+        // document.getElementById('resultado').scrollIntoView(({ behavior: 'smooth', block: 'center' }));
+        document.getElementById('resultado').scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
+        clearInterval(scrollInterval)
+      }
+    }
+  }, 300)
+
   try {
     const post = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=` + latlng.value.lat
       + `&lon=` + e.latlng.lng
